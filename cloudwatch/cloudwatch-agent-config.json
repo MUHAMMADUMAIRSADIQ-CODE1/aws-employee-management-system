@@ -1,0 +1,74 @@
+{
+  "agent": {
+    "metrics_collection_interval": 60,
+    "run_as_user": "root",
+    "region": "us-east-1"
+  },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/opt/employee-management/logs/combined.log",
+            "log_group_name": "/ems/backend",
+            "log_stream_name": "{instance_id}/combined",
+            "timestamp_format": "%Y-%m-%d %H:%M:%S",
+            "encoding": "utf-8",
+            "multi_line_start_pattern": "{"
+          },
+          {
+            "file_path": "/opt/employee-management/logs/error.log",
+            "log_group_name": "/ems/backend/error",
+            "log_stream_name": "{instance_id}/error",
+            "timestamp_format": "%Y-%m-%d %H:%M:%S",
+            "encoding": "utf-8",
+            "multi_line_start_pattern": "{"
+          },
+          {
+            "file_path": "/var/log/messages",
+            "log_group_name": "/ems/system",
+            "log_stream_name": "{instance_id}/messages",
+            "timestamp_format": "%b %d %H:%M:%S"
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "namespace": "EMS/Backend",
+    "metrics_collected": {
+      "cpu": {
+        "measurement": [
+          {"name": "cpu_usage_idle", "rename": "CPU.Idle", "unit": "Percent"},
+          {"name": "cpu_usage_user", "rename": "CPU.User", "unit": "Percent"},
+          {"name": "cpu_usage_system", "rename": "CPU.System", "unit": "Percent"}
+        ],
+        "metrics_collection_interval": 60,
+        "totalcpu": true
+      },
+      "mem": {
+        "measurement": [
+          {"name": "mem_used_percent", "rename": "Memory.Used", "unit": "Percent"}
+        ],
+        "metrics_collection_interval": 60
+      },
+      "disk": {
+        "measurement": [
+          {"name": "disk_used_percent", "rename": "Disk.Used", "unit": "Percent"},
+          {"name": "disk_free_percent", "rename": "Disk.Free", "unit": "Percent"}
+        ],
+        "metrics_collection_interval": 60,
+        "resources": ["/", "/var", "/data"]
+      },
+      "netstat": {
+        "measurement": ["tcp_established", "tcp_time_wait"],
+        "metrics_collection_interval": 60
+      },
+      "swap": {
+        "measurement": ["swap_used_percent"],
+        "metrics_collection_interval": 60
+      }
+    },
+    "aggregation_dimensions": [["InstanceId"]]
+  }
+}
