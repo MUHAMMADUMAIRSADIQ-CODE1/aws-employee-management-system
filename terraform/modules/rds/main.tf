@@ -32,7 +32,7 @@ resource "aws_db_instance" "main" {
   identifier = "ems-mysql-${var.environment}"
 
   engine         = "mysql"
-  engine_version = "8.0.35"
+  engine_version = "8.0.46"
   instance_class = var.instance_class
 
   allocated_storage     = var.allocated_storage
@@ -48,7 +48,7 @@ resource "aws_db_instance" "main" {
 
   parameter_group_name = aws_db_parameter_group.main.name
 
-  backup_retention_period = 7
+  backup_retention_period = 0
   backup_window          = "03:00-04:00"
   maintenance_window     = "sun:04:00-sun:05:00"
 
