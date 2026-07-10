@@ -19,31 +19,52 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set -x
+            set +e
 
-            export NVM_DIR="$HOME/.nvm"
-            source "$NVM_DIR/nvm.sh"
-            nvm use 16
+            echo "===== STEP 1 ====="
+            whoami
 
-            echo "=== NODE ==="
-            node -v
-            npm -v
-
-            echo "=== PROJECT ==="
-            cd ${{ secrets.PROJECT_PATH }}
+            echo "===== STEP 2 ====="
             pwd
 
-            echo "=== GIT ==="
+            echo "===== STEP 3 ====="
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+
+            echo "===== STEP 4 ====="
+            nvm use 16
+
+            echo "===== STEP 5 ====="
+            node -v
+
+            echo "===== STEP 6 ====="
+            npm -v
+
+            echo "===== STEP 7 ====="
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo "===== STEP 8 ====="
+            pwd
+
+            echo "===== STEP 9 ====="
             git fetch origin
+
+            echo "===== STEP 10 ====="
             git reset --hard origin/main
 
-            echo "=== BACKEND ==="
+            echo "===== STEP 11 ====="
             cd backend
 
-            echo "=== NPM INSTALL ==="
+            echo "===== STEP 12 ====="
             npm install
 
-            echo "=== PM2 ==="
+            echo "===== STEP 13 ====="
             pm2 describe employee-backend
 
-            echo "=== DONE ==="
+            echo "===== STEP 14 ====="
+            pm2 restart employee-backend
+
+            echo "===== STEP 15 ====="
+            curl http://localhost:3000
+
+            echo "===== FINISHED ====="
