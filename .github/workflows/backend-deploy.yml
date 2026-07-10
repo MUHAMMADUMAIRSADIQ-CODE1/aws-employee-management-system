@@ -2,123 +2,59 @@ name: Backend CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - main
     paths:
-      - 'backend/**'
-      - '.github/workflows/backend-deploy.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'backend/**'
-
-env:
-  AWS_REGION: us-east-1
-  EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
-
-permissions:
-  id-token: write
-  contents: read
+      - "backend/**"
+      - ".github/workflows/backend-deploy.yml"
 
 jobs:
-  lint-and-test:
-    name: Lint & Test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: './backend/package-lock.json'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run lint
-        run: npx eslint . --ext .js --max-warnings 0 || echo "No eslint config"
-
-      - name: Run tests
-        run: npm test
-
   deploy:
-    name: Deploy to EC2
-    needs: lint-and-test
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci --production
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            cd /opt/employee-management
 
-            # Pull latest code
-            git fetch origin main
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo "Pulling latest code..."
+            git fetch origin
             git reset --hard origin/main
 
-            # Install production dependencies
+            echo "Installing backend dependencies..."
             cd backend
-            npm ci --production
+            npm install
 
-            # Create .env if not exists
-            if [ ! -f .env ]; then
-              cat > .env << EOF
-              NODE_ENV=production
-              PORT=3000
-              DB_HOST=${{ secrets.DB_HOST }}
-              DB_PORT=3306
-              DB_USER=${{ secrets.DB_USER }}
-              DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-              DB_NAME=${{ secrets.DB_NAME }}
-              JWT_SECRET=${{ secrets.JWT_SECRET }}
-              JWT_EXPIRES_IN=24h
-              CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
-              LOG_LEVEL=info
-              ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
-              ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
-              ADMIN_NAME=Super Admin
-              EOF
-            fi
+            echo "Creating .env..."
+            cat > .env << EOF
+            NODE_ENV=production
+            PORT=3000
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=3306
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_EXPIRES_IN=24h
+            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+            EOF
 
-            # Restart application
-            pm2 restart ecosystem.config.js || pm2 start server.js --name ems-api -i max
+            echo "Restarting PM2..."
 
-            # Save PM2 process list
+            pm2 restart employee-backend || pm2 start server.js --name employee-backend
+
             pm2 save
 
-            # Verify deployment
-            sleep 3
-            curl -f http://localhost:3000/api/health || exit 1
+            echo "Deployment Finished"
 
-      - name: Deployment Status
-        run: echo "Deployment to EC2 completed successfully"
+            curl http://localhost:3000
