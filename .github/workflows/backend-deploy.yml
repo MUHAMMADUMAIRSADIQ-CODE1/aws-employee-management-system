@@ -4,67 +4,22 @@ on:
   push:
     branches:
       - main
-   
 
 jobs:
-  deploy:
+  test-ssh:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Deploy to EC2
+      - name: Test SSH Connection
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          debug: true
           script: |
-            set -e
-
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-            nvm use 16
-
-            node -v
-            npm -v
-
-            cd ${{ secrets.PROJECT_PATH }}
-
-            echo "Pulling latest code..."
-            git fetch origin
-            git reset --hard origin/main
-
-            echo "Installing backend dependencies..."
-            cd backend
-            npm install
-
-            echo "Creating .env..."
-            cat > .env << EOF
-            NODE_ENV=production
-            PORT=3000
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=3306
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_EXPIRES_IN=24h
-            CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
-            EOF
-
-            echo "Restarting PM2..."
-
-            if pm2 describe employee-backend > /dev/null; then
-              pm2 restart employee-backend
-            else
-              pm2 start server.js --name employee-backend
-            fi
-
-            pm2 save
-
-            echo "Deployment Finished"
-
-            curl http://localhost:3000
+            echo "===== SSH SUCCESS ====="
+            whoami
+            hostname
+            pwd
+            ls -la
