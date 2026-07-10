@@ -6,20 +6,36 @@ on:
       - main
 
 jobs:
-  test-ssh:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test SSH Connection
+      - uses: actions/checkout@v4
+
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          debug: true
           script: |
-            echo "===== SSH SUCCESS ====="
-            whoami
-            hostname
+            set -e
+
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+
+            nvm use 16
+
+            node -v
+            npm -v
+
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo "Current directory:"
             pwd
-            ls -la
+
+            echo "Git Pull..."
+            git fetch origin
+            git reset --hard origin/main
+
+            echo "Done Git Pull"
