@@ -12,30 +12,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to EC2
+      - name: Debug SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set -e
+            echo "STEP 1"
+            echo "$HOME"
 
-            export NVM_DIR="$HOME/.nvm"
-            source "$NVM_DIR/nvm.sh"
+            echo "STEP 2"
+            ls -la "$HOME"
 
-            nvm use 16
+            echo "STEP 3"
+            ls -la "$HOME/.nvm"
 
-            node -v
-            npm -v
+            echo "STEP 4"
+            test -f "$HOME/.nvm/nvm.sh" && echo "nvm.sh exists"
 
-            cd ${{ secrets.PROJECT_PATH }}
+            echo "STEP 5"
+            bash -lc 'source ~/.nvm/nvm.sh && nvm current'
 
-            echo "Current directory:"
-            pwd
-
-            echo "Git Pull..."
-            git fetch origin
-            git reset --hard origin/main
-
-            echo "Done Git Pull"
+            echo "STEP 6"
