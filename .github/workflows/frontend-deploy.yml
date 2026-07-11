@@ -27,20 +27,30 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
-            echo "===== STEP 3: Check Node ====="
+            echo "===== STEP 3: Load NVM manually ====="
+            export NVM_DIR="/home/ec2-user/.nvm"
+            source /home/ec2-user/.nvm/nvm.sh
+
+            echo "===== STEP 4: Check NVM ====="
+            command -v nvm
+
+            echo "===== STEP 5: Use Node 16 ====="
+            nvm use 16
+
+            echo "===== STEP 6: Check Node ====="
             node -v
             npm -v
 
-            echo "===== STEP 4: Frontend folder ====="
+            echo "===== STEP 7: Frontend folder ====="
             cd frontend
 
-            echo "===== STEP 5: Install packages ====="
+            echo "===== STEP 8: Install packages ====="
             npm install
 
-            echo "===== STEP 6: Build frontend ====="
+            echo "===== STEP 9: Build frontend ====="
             npm run build
 
-            echo "===== STEP 7: Reload Nginx ====="
+            echo "===== STEP 10: Reload Nginx ====="
             sudo nginx -s reload
 
             echo "===== FRONTEND DEPLOYMENT FINISHED ====="
