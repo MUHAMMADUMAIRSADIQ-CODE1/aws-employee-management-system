@@ -27,7 +27,13 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
-            echo "===== STEP 3: Load Node environment ====="
+            echo "===== STEP 3: Debug NVM ====="
+            whoami
+            echo $HOME
+            ls -la ~/.nvm
+            ls -la ~/.nvm/nvm.sh
+
+            echo "===== LOAD NVM ====="
             export NVM_DIR="$HOME/.nvm"
             source "$NVM_DIR/nvm.sh"
 
