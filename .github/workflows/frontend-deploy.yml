@@ -27,36 +27,20 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
-            echo "===== STEP 3: Debug NVM ====="
-            whoami
-            echo $HOME
-            ls -la ~/.nvm
-            ls -la ~/.nvm/nvm.sh
-
-            echo "===== LOAD NVM ====="
-            export NVM_DIR="$HOME/.nvm"
-
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-            echo "NVM loaded"
-
-            echo "===== STEP 4: Use Node 16 ====="
-            nvm use 16 || nvm alias default 16
-
-            echo "===== STEP 5: Check versions ====="
+            echo "===== STEP 3: Check Node ====="
             node -v
             npm -v
 
-            echo "===== STEP 6: Frontend folder ====="
+            echo "===== STEP 4: Frontend folder ====="
             cd frontend
 
-            echo "===== STEP 7: Install packages ====="
+            echo "===== STEP 5: Install packages ====="
             npm install
 
-            echo "===== STEP 8: Build frontend ====="
+            echo "===== STEP 6: Build frontend ====="
             npm run build
 
-            echo "===== STEP 9: Reload Nginx ====="
+            echo "===== STEP 7: Reload Nginx ====="
             sudo nginx -s reload
 
             echo "===== FRONTEND DEPLOYMENT FINISHED ====="
