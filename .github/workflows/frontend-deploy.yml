@@ -1,0 +1,53 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Frontend to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            set -e
+
+            echo "===== STEP 1: Go to project ====="
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo "===== STEP 2: Pull latest code ====="
+            git fetch origin
+            git reset --hard origin/main
+
+            echo "===== STEP 3: Load Node environment ====="
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+
+            echo "===== STEP 4: Use Node 16 ====="
+            nvm use 16
+
+            echo "===== STEP 5: Check versions ====="
+            node -v
+            npm -v
+
+            echo "===== STEP 6: Frontend folder ====="
+            cd frontend
+
+            echo "===== STEP 7: Install packages ====="
+            npm install
+
+            echo "===== STEP 8: Build frontend ====="
+            npm run build
+
+            echo "===== STEP 9: Reload Nginx ====="
+            sudo nginx -s reload
+
+            echo "===== FRONTEND DEPLOYMENT FINISHED ====="
