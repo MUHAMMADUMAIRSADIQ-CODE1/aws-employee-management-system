@@ -63,9 +63,12 @@ jobs:
             pm2 describe employee-backend
 
             echo "===== STEP 14 ====="
-            pm2 restart employee-backend
+            pm2 restart employee-backend --update-env
+
+            echo "Waiting 5 seconds..."
+            sleep 5
 
             echo "===== STEP 15 ====="
-            curl http://localhost:3000
+            curl http://localhost:3000/api/health
 
             echo "===== FINISHED ====="
