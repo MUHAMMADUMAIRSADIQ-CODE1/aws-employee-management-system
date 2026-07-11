@@ -28,7 +28,7 @@ jobs:
             git reset --hard origin/main
 
             echo "===== STEP 3: Load Node PATH ====="
-            export PATH="/home/ec2-user/.nvm/versions/node/v18.20.8/bin:$PATH"
+            export PATH="/home/ec2-user/.nvm/versions/node/v16.20.2/bin:$PATH"
 
             echo "===== STEP 4: Check Node ====="
             node -v
@@ -38,7 +38,7 @@ jobs:
             cd frontend
 
             echo "===== STEP 6: Install packages ====="
-            npm ci
+            npm install
 
             echo "===== STEP 7: Build frontend ====="
             npm run build
