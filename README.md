@@ -176,3 +176,4 @@ terraform apply
 - RDS in private subnets
 - Encrypted EBS and RDS storage
 - HTTPS via ALB/CloudFront
+Test Auto Deploy
